@@ -17,7 +17,8 @@ class Porsche(Car):
     def drive_sports_mode(self, hours):
         self.drive(hours=hours * 2)
 
-    def print_name(self):
+    @classmethod
+    def print_name(cls):
         print('My name is Porsche')
 
 if __name__ == '__main__':
@@ -25,7 +26,7 @@ if __name__ == '__main__':
     my_porsche = Porsche()
     your_porsche = Porsche()
 
-    my_porsche.drive_sports_mode(hours=2)
-    
-    print(my_porsche.position)
     # my_porsche.print_name()
+
+    Porsche.print_name()
+    Porsche().print_name()
