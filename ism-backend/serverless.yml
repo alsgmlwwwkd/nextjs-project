@@ -1,0 +1,43 @@
+service: ism-backend
+
+frameworkVersion: '2'
+
+# serverless 에 붙이기
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
+provider:
+  name: aws
+  runtime: python3.8
+  lambdaHashingVersion: 20201221
+  stage: dev
+  region: ap-northeast-2
+
+functions:
+  hello:
+    handler: services.hello.main
+    events:
+      - http:
+          path: /hello
+          method: get
+          cors: true
+
+  fred_series_list:
+    handler: services.fred_series_list.main
+    events:
+      - http:
+          path: /fred-series-list
+          method: get
+          cors: true          
+
+  fred_series_values:
+    handler: services.fred_series_values.main
+    events:
+      - http:
+          path: /fred-series-values
+          method: get
+          cors: true
