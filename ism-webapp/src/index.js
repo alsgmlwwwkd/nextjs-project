@@ -1,4 +1,5 @@
 import './index.css';
+import "antd/dist/antd.css";
 
 import Amplify from "aws-amplify";
 import App from './App';
