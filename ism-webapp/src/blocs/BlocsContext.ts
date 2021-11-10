@@ -2,6 +2,7 @@ import { createContext, useContext } from "react";
 
 import BlocBase from "./BlocBase";
 import FredSeriesListBloc from "./FredSeriesListBloc";
+import FredSeriesValuesBloc from "./FredSeriesValuesBloc";
 
 // block들의 집합 -> context로 wrapping해서 넘기기
 export class Blocs {
@@ -9,9 +10,10 @@ export class Blocs {
 
     // 변수 선언
     fredSeriesListBloc = new FredSeriesListBloc();
+    fredSeriesValuesBloc = new FredSeriesValuesBloc();
 
     // blocQueue = blockbase의 목록(type) : 값으로는 fredser -- 가 들어감
-    blocQueue: BlocBase[] = [this.fredSeriesListBloc];
+    blocQueue: BlocBase[] = [this.fredSeriesListBloc, this.fredSeriesValuesBloc];
 
     init() {
         if (this.initialized) return;

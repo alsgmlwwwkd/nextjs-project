@@ -26,7 +26,6 @@ export default class FredSeriesListBloc extends BlocBase {
         //asynchronous call: 비동기식 호출 -> 결과 안 기다림(결과가 돌아오면 함수 실행)
         API.get("ism", "/fred-series-list", {})
             .then((value) => {
-                console.log(value);
                 // loading 완료
                 this._loading$.next(false);
                 // 받아온 data 밀어넣어 주기
