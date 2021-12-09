@@ -39,50 +39,46 @@ def fetch_news_list(datestr, page):
         title = link.text.strip()
         href = link['href']
 
-        publisher = item.find("span", {"class": "writing"}).text
+        try:
+            publisher = item.find("span", {"class": "writing"}).text
 
-        if publisher is not None:
-            publisher = publisher
-        else:
-            publisher = ''
+            if publisher is not None:
+                publisher = publisher
+            else:
+                publisher = ''
 
-        summary = item.find("span", {"class": "lede"}).text
+            summary = item.find("span", {"class": "lede"}).text
 
-        created_at = item.find("span", {"class": "date"}).text
-        created_at = created_at.replace("오전", "AM").replace("오후", "PM")
-        created_at = dt.datetime.strptime(created_at, "%Y.%m.%d. %p %I:%M")
+            created_at = item.find("span", {"class": "date"}).text
+            created_at = created_at.replace("오전", "AM").replace("오후", "PM")
+            created_at = dt.datetime.strptime(created_at, "%Y.%m.%d. %p %I:%M")
 
-        # print(title)
-        # print(publisher)
-        # print(created_at)
-        # print(href)
-        # print(summary)
-        
-        parsed_url = urlparse(href)
-        qs = parse_qs(parsed_url.query)
+            
+            parsed_url = urlparse(href)
+            qs = parse_qs(parsed_url.query)
 
-        oid = qs['oid'][0]
-        aid = qs['aid'][0]
+            oid = qs['oid'][0]
+            aid = qs['aid'][0]
 
-        # 내부적으로 사용할 id
-        news_id = 'nn-{}-{}'.format(oid, aid)
+            # 내부적으로 사용할 id
+            news_id = 'nn-{}-{}'.format(oid, aid)
 
-        # print(news_id)
+            info = {
+                'id': news_id,
+                'title': title,
+                'publisher': publisher,
+                'created_at': created_at.isoformat(),
+                'summary': summary,
+                'href': href,
+            }
 
-        info = {
-            'id': news_id,
-            'title': title,
-            'publisher': publisher,
-            'created_at': created_at.isoformat(),
-            'summary': summary,
-            'href': href,
-        }
-
-        buffer.append(info)    
+            buffer.append(info)
+        except:
+            pass    
     
     return buffer
 
-def fetch_news_list_for_date(date):
+def fetch_news_list_for_date(date, num_pages=100):
     # date 문자열로 바꿔줌
     datestr = date.strftime('%Y%m%d')
 
@@ -92,7 +88,7 @@ def fetch_news_list_for_date(date):
 
     last_news_id = None
 
-    for page in range(1, 1000):
+    for page in range(1, num_pages):
         print('Fetching page {}...'.format(page))
 
         buffer = fetch_news_list(datestr, page)
@@ -102,7 +98,9 @@ def fetch_news_list_for_date(date):
         else:
             last_news_id = buffer[-1]['id']
 
-        upload_to_elastic_search(buffer)
+        upload_to_db(buffer)
+        # print(buffer)
+        # 172.30.1.8
 
         # 마지막 페이지 확인
         if len(buffer) < 20:
@@ -113,48 +111,39 @@ def fetch_news_list_for_date(date):
     print('** Complete!! **')
 
 
-def upload_to_elastic_search(buffer):
+def upload_to_db(buffer):
     if len(buffer) == 0:
         return
-
-    data = ''
-
-    for x in buffer:
-        index = {
-            'index': {
-                '_id': x['id']
-            }
-        }
-        data += json.dumps(index) + '\n'
-
-        del x['id']
-
-        data += json.dumps(x) + '\n'
-
-        # print(data)
-    
 
     headers = {
         'Content-Type': 'application/json'
     }
-    # bulk insert    
-    resp = requests.post(
-        f'{ELASTICSEARCH_URL}/news/_bulk?pretty&refresh',
-        headers=headers,
-        data=data,
-        auth=ELASTICSEARCH_AUTH
-    )
 
+    # 몽고 디비 사용을 위해 request endpoint 변경
+    # bulk insert    
+    
+    resp = requests.post(
+        f'{ISM_API_URL}/api/news',
+        headers=headers,
+        json=buffer,
+    )
+    print(resp.text)
     # print(resp.status_code)
     
-    assert resp.status_code == 200
+    assert resp.status_code == 201
 
 
 
 if __name__ == '__main__':
-    base_date = dt.datetime(2021, 10, 25)
+    # 시작일과 끝나는 날짜 설정을 위해 추가
+    base_date = dt.datetime(2021, 11, 4)
+    end_date = dt.datetime(2021, 12, 7)
+    
+    date = base_date
+    while True:
+        print(f'====================== Working on {date} ======================')
+        fetch_news_list_for_date(date, num_pages=100)
 
-    for d in range(10):
-        date = base_date + relativedelta(days=d)
-
-        fetch_news_list_for_date(date)
+        date += relativedelta(days=1)
+        if date == end_date:
+            break

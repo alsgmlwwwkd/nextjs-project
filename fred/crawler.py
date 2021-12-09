@@ -117,6 +117,8 @@ def collect_series_values(series_id, cursor):
         # print(item)
 
         values.append(item)
+        print(type(item))
+        pdb.set_trace()
 
     if len(values) > 0:    
         psycopg2.extras.execute_values(cursor, query, values)
