@@ -1,25 +1,45 @@
-import logo from './logo.svg';
 import './App.css';
+import Navbar from "react-bootstrap/Navbar";
+
+// import ReactWordcloud from 'react-wordcloud';
+import 'tippy.js/dist/tippy.css';
+import 'tippy.js/animations/scale.css';
+// import Home from "./containers/Home";
+import Routes from "./Routes";
+
+
+// const words = [
+//   {
+//     text: 'told',
+//     value: 64,
+//   },
+//   {
+//     text: 'mistake',
+//     value: 11,
+//   },
+//   {
+//     text: 'thought',
+//     value: 16,
+//   },
+//   {
+//     text: 'bad',
+//     value: 17,
+//   },
+// ]
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    // <ReactWordcloud words={words} />
+    <div className="App container py-3">
+      <Navbar collapseOnSelect bg="light" expand="md" className="mb-3">
+        WordCloud
+      </Navbar>
+      {/* <Home /> */}
+      <Routes />
     </div>
   );
 }
+
+
 
 export default App;
